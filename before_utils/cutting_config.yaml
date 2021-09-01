@@ -1,0 +1,20 @@
+sample_img:
+    img_folder_path: "/DL_data_big/JSH_Tracking_dataset_Pig/3"
+    det_file_path: "/works/load_json/det/det_file_3.txt"
+    img_format: ".jpg"
+    det_format: ".txt"
+    width_roi_padding: 0.08
+    height_roi_padding: 0.0
+
+cutting_img:
+    output_path: "/works/load_json/output"
+    width: 128
+    height: 128
+
+re_filename: False
+output_refile_path: "/works/load_json/output_rebatch"
+
+make_testfile:
+    input_folder: "/works/load_json/output_rebatch"
+    output_folder: "/works/load_json/test_data"
+    count: 900

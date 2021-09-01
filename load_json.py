@@ -35,9 +35,12 @@ def rotate(origin, point, radian):
 
 def argument():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--json_root_path", type=str, default=f"Y:/DL_data_big/EdgeFarm_pig/superbAI_track/tracking/")
-    ap.add_argument("--json_meta_path",type=str, default=f"Y:/DL_data_big/EdgeFarm_pig/superbAI_track/tracking/meta/")
-    ap.add_argument("--img_folder_path",type=str, default=f"Y:/DL_data_big/EdgeFarm_pig/SL/piglet/img_per_10frame/")
+    ap.add_argument("--json_root_path", type=str, default="/DL_data_big/EdgeFarm_pig/superbAI_track/tracking/")
+    ap.add_argument("--json_meta_path",type=str, default="/DL_data_big/EdgeFarm_pig/superbAI_track/tracking/meta/")
+    ap.add_argument("--img_folder_path",type=str, default="/DL_data_big/EdgeFarm_pig/SL/piglet/img_per_10frame/")
+    # ap.add_argument("--json_root_path", type=str, default=f"Y:/DL_data_big/EdgeFarm_pig/superbAI_track/tracking/")
+    # ap.add_argument("--json_meta_path",type=str, default=f"Y:/DL_data_big/EdgeFarm_pig/superbAI_track/tracking/meta/")
+    # ap.add_argument("--img_folder_path",type=str, default=f"Y:/DL_data_big/EdgeFarm_pig/SL/piglet/img_per_10frame/")
 
     args = ap.parse_args()
 
@@ -51,7 +54,7 @@ def main():
     
     for json_i in range(len(json_file_list)):
 
-        if json_i == 0:
+        if json_i > 0:
             continue
 
         img_file_list = file_list(args.img_folder_path+str(json_i+1))
@@ -62,8 +65,8 @@ def main():
         with open(args.json_root_path+origin_json['label_path'][0], "r",encoding="UTF-8") as st_json2:
             origin_2json = json.load(st_json2)
 
-        f = open("det_file_{}.txt".format(json_i+1), mode="a")
-        f.write("frame,x,y,w,h,t,noX,noY,neX,neY,taX,taY,trk")
+        f = open("test_det_file_{}.txt".format(json_i+1), mode="a")
+        f.write("frame,x,y,w,h,t,noX,noY,neX,neY,taX,taY,trk\n")
 
         # 이미지 하나
         for i in range(len(img_file_list)):
@@ -95,53 +98,54 @@ def main():
                             for k in range(len(origin_2json['objects'])):
                                 for t in range(len(origin_2json['objects'][k]['frames'])):
                                     if origin_2json['objects'][k]['frames'][t]['num'] == i:
-                                        if origin_2json['objects'][k]['frames'][t]['annotation']['coord'].get("points"):
-                                            nose_ = origin_2json['objects'][k]['frames'][t]['annotation']['coord']['points'][0]
-                                            neck_ = origin_2json['objects'][k]['frames'][t]['annotation']['coord']['points'][1]
-                                            tail_ = origin_2json['objects'][k]['frames'][t]['annotation']['coord']['points'][2]
-                                            if inBox(((rotated_x1,rotated_y1),
-                                                (rotated_x2,rotated_y2),
-                                                (rotated_x3,rotated_y3),
-                                                (rotated_x4,rotated_y4)),
-                                                Point([nose_['x'],nose_['y']])) \
-                                                    and inBox(((rotated_x1,rotated_y1),
-                                                (rotated_x2,rotated_y2),
-                                                (rotated_x3,rotated_y3),
-                                                (rotated_x4,rotated_y4)),
-                                                Point([neck_['x'],neck_['y']])) \
-                                                    and inBox(((rotated_x1,rotated_y1),
-                                                (rotated_x2,rotated_y2),
-                                                (rotated_x3,rotated_y3),
-                                                (rotated_x4,rotated_y4)),
-                                                Point([tail_['x'],tail_['y']])):
+                                        if origin_2json['objects'][k]['frames'][t]['annotation']['coord'].get("points") and origin_2json['objects'][k]['frames'][t].get('multiple') == None:
+                                            if origin_2json['objects'][k]['frames'][t]['annotation']['coord']['points'][0].get('state'):
+                                                nose_ = origin_2json['objects'][k]['frames'][t]['annotation']['coord']['points'][0]
+                                                neck_ = origin_2json['objects'][k]['frames'][t]['annotation']['coord']['points'][1]
+                                                tail_ = origin_2json['objects'][k]['frames'][t]['annotation']['coord']['points'][2]
+                                                if inBox(((rotated_x1,rotated_y1),
+                                                    (rotated_x2,rotated_y2),
+                                                    (rotated_x3,rotated_y3),
+                                                    (rotated_x4,rotated_y4)),
+                                                    Point([nose_['x'],nose_['y']])) \
+                                                        and inBox(((rotated_x1,rotated_y1),
+                                                    (rotated_x2,rotated_y2),
+                                                    (rotated_x3,rotated_y3),
+                                                    (rotated_x4,rotated_y4)),
+                                                    Point([neck_['x'],neck_['y']])) \
+                                                        and inBox(((rotated_x1,rotated_y1),
+                                                    (rotated_x2,rotated_y2),
+                                                    (rotated_x3,rotated_y3),
+                                                    (rotated_x4,rotated_y4)),
+                                                    Point([tail_['x'],tail_['y']])):
 
-                                                p_nose_x = int(nose_['x'])
-                                                p_nose_y = int(nose_['y'])
-                                                p_nect_x = int(neck_['x'])
-                                                p_nect_y = int(neck_['y'])
-                                                p_tail_x = int(tail_['x'])
-                                                p_tail_y = int(tail_['y'])
-                                                
-                                                # img = cv2.circle(img,(int(nose_['x']),int(nose_['y'])),2,(COLOR_B,COLOR_G,COLOR_R),2)
-                                                # img = cv2.circle(img,(int(neck_['x']),int(neck_['y'])),2,(COLOR_B,COLOR_G,COLOR_R),2)
-                                                # img = cv2.circle(img,(int(tail_['x']),int(tail_['y'])),2,(COLOR_B,COLOR_G,COLOR_R),2)
+                                                    p_nose_x = int(nose_['x'])
+                                                    p_nose_y = int(nose_['y'])
+                                                    p_nect_x = int(neck_['x'])
+                                                    p_nect_y = int(neck_['y'])
+                                                    p_tail_x = int(tail_['x'])
+                                                    p_tail_y = int(tail_['y'])
+                                                    
+                                                    # img = cv2.circle(img,(int(nose_['x']),int(nose_['y'])),2,(COLOR_B,COLOR_G,COLOR_R),2)
+                                                    # img = cv2.circle(img,(int(neck_['x']),int(neck_['y'])),2,(COLOR_B,COLOR_G,COLOR_R),2)
+                                                    # img = cv2.circle(img,(int(tail_['x']),int(tail_['y'])),2,(COLOR_B,COLOR_G,COLOR_R),2)
 
-                                                # img = cv2.line(img,(int(nose_['x']),int(nose_['y'])),(int(neck_['x']),int(neck_['y'])),(COLOR_B,COLOR_G,COLOR_R),2)
-                                                # img = cv2.line(img,(int(neck_['x']),int(neck_['y'])),(int(tail_['x']),int(tail_['y'])),(COLOR_B,COLOR_G,COLOR_R),2)
+                                                    # img = cv2.line(img,(int(nose_['x']),int(nose_['y'])),(int(neck_['x']),int(neck_['y'])),(COLOR_B,COLOR_G,COLOR_R),2)
+                                                    # img = cv2.line(img,(int(neck_['x']),int(neck_['y'])),(int(tail_['x']),int(tail_['y'])),(COLOR_B,COLOR_G,COLOR_R),2)
 
-                                                # img = cv2.line(img,(round(rotated_x1),round(rotated_y1)),(round(rotated_x2),round(rotated_y2)),(COLOR_B,COLOR_G,COLOR_R),2)
-                                                # img = cv2.line(img,(round(rotated_x2),round(rotated_y2)),(round(rotated_x3),round(rotated_y3)),(COLOR_B,COLOR_G,COLOR_R),2)
-                                                # img = cv2.line(img,(round(rotated_x3),round(rotated_y3)),(round(rotated_x4),round(rotated_y4)),(COLOR_B,COLOR_G,COLOR_R),2)
-                                                # img = cv2.line(img,(round(rotated_x4),round(rotated_y4)),(round(rotated_x1),round(rotated_y1)),(COLOR_B,COLOR_G,COLOR_R),2)
-                                                # cv2.imwrite("test.jpg", img)
-                                                ## text file making
-                                                f = open("det_file_{}.txt".format(json_i+1), mode="a")
-                                                f.write("{},{},{},{},{},{},{},{},{},{},{},{},{}\n".format(i, int(o_cx), int(o_cy), int(o_width), int(o_height), round(o_radian,2), \
-                                                    int(p_nose_x), int(p_nose_y), \
-                                                    int(p_nect_x), int(p_nect_y), \
-                                                    int(p_tail_x), int(p_tail_y), \
-                                                    origin_2json['objects'][j]['trackingId']))
-                                                f.flush()
+                                                    # img = cv2.line(img,(round(rotated_x1),round(rotated_y1)),(round(rotated_x2),round(rotated_y2)),(COLOR_B,COLOR_G,COLOR_R),2)
+                                                    # img = cv2.line(img,(round(rotated_x2),round(rotated_y2)),(round(rotated_x3),round(rotated_y3)),(COLOR_B,COLOR_G,COLOR_R),2)
+                                                    # img = cv2.line(img,(round(rotated_x3),round(rotated_y3)),(round(rotated_x4),round(rotated_y4)),(COLOR_B,COLOR_G,COLOR_R),2)
+                                                    # img = cv2.line(img,(round(rotated_x4),round(rotated_y4)),(round(rotated_x1),round(rotated_y1)),(COLOR_B,COLOR_G,COLOR_R),2)
+                                                    # cv2.imwrite("test.jpg", img)
+                                                    ## text file making
+                                                    # f = open("test_det_file_{}.txt".format(json_i+1), mode="a")
+                                                    f.write("{},{},{},{},{},{},{},{},{},{},{},{},{}\n".format(i, int(o_cx), int(o_cy), int(o_width), int(o_height), round(o_radian,2), \
+                                                        int(p_nose_x), int(p_nose_y), \
+                                                        int(p_nect_x), int(p_nect_y), \
+                                                        int(p_tail_x), int(p_tail_y), \
+                                                        origin_2json['objects'][j]['trackingId']))
+                                                    f.flush()
 
             # cv2.imwrite("{}.jpg".format(i), img)
             if i>= 600:
@@ -151,7 +155,7 @@ def main():
         #     print("break2")
         #     break
 
-    f.close()
+        f.close()
 
 if __name__ == "__main__":
     main()

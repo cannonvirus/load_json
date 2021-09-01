@@ -102,7 +102,7 @@ def cutting_test(config):
                 pig_img = img[np.min(Rdot['Ry']):np.max(Rdot['Ry']), np.min(Rdot['Rx']):np.max(Rdot['Rx']),:]
                 pig_img = cv2.resize(pig_img, (config['cutting_img']['width'],config['cutting_img']['height']), interpolation=cv2.INTER_LINEAR)
                 pig_img_folder = "{}_{}".format(re.split("/", config['sample_img']['img_folder_path'])[-1], str(trk).zfill(3))
-                pig_img_filename = "{}.jpg".format(frm)
+                pig_img_filename = "{}.jpg".format(frm.zfill(4))
                 if not os.path.isdir(os.path.join(config['cutting_img']['output_path'], pig_img_folder)):
                     os.mkdir(os.path.join(config['cutting_img']['output_path'], pig_img_folder))
                     cv2.imwrite( os.path.join(config['cutting_img']['output_path'], pig_img_folder, pig_img_filename), pig_img)
